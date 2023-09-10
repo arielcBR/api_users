@@ -12,13 +12,31 @@ class User{
 
     async findEmail(email) {
         try {
-            const emailExists = await knex.select('*').from('users').where({ email });
+            const emailExists = await knex.select('name').from('users').where({ email });
             if (emailExists.length) 
                 return true;
             return false;
         } catch (error) {
             console.log(error);
             return false;
+        }
+    }
+
+    async findAll() {
+        try {
+            const users = await knex.select(['id','name','email','role']).from('users');
+            return users;
+        } catch (error) {
+            throw new AppError(error.sqlMessage);
+        }
+    }
+
+    async findById(id) {
+        try {
+            const user = await knex.select(['id','name','email','role']).from('users').where({id});
+            return user;
+        } catch (error) {
+            throw new AppError(error.sqlMessage);
         }
     }
 }

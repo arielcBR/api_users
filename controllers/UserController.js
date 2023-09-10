@@ -1,7 +1,6 @@
 const { hash, compare } = require('bcrypt');
 const AppError = require('../utils/AppError');
 const validateEmail = require('../utils/emailValidation');
-const userModel = require('../models/User');
 const User = require('../models/User');
 
 class UserController{
@@ -25,10 +24,38 @@ class UserController{
             throw new AppError("The email is already registered", 406);
    
         const hashedPassword = await hash(password, 8);
-        await userModel.new(name, email, hashedPassword, role);
+        await User.new(name, email, hashedPassword, role);
         res.json({message: "The user has been created"});
             
-    }
+    };
+
+    async findAll(req, res) {
+        const { role } = req.body;
+
+        if (role == 1) {
+            const users = await User.findAll();
+            res.json({...users});
+        }
+        else
+            throw new AppError("You do not have permission!", 401);
+    };
+
+    async findUser(req, res) {
+        const { role } = req.body;
+        const { id } = req.params;
+        let user;
+
+        if (role == 1) {
+            user = await User.findById(id);
+
+            if (!user.length)
+                throw new AppError("The user does not exist", 404);
+            res.json({ user });
+        }
+        else
+            throw new AppError("You do not have permission!", 401);
+
+    };
 }
 
 module.exports = new UserController();
