@@ -1,0 +1,14 @@
+// import require('express-async-errors') in the server file
+
+class AppError{
+    message;
+    statusCode;
+
+    constructor(message, statusCode = 400) {
+        this.message = message;
+        this.statusCode = statusCode;
+    }
+
+}
+
+module.exports = AppError;
