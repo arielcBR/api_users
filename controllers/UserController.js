@@ -61,19 +61,31 @@ class UserController{
         const {id, name, email, role} = req.body;
 
         const result = await User.update(id, email, name, role);
-
         if(result != undefined){
             if(result.status){
                 res.json({message: "The user has been updated!"});
             }
             else{
-                throw new AppError(result.err, 406);
+                throw new AppError(result.message, 406);
             }
         }
         else{
-            throw new AppError(result.err, 406);
+            throw new AppError(result.message, 406);
         }
+    }
 
+    async delete(req, res){
+        const id = req.params.id;
+        const role = req.body.role;
+
+        const isUserDeleted = await User.delete(id, role);
+
+        if(isUserDeleted.status){
+            res.json({message: isUserDeleted.message});
+        }
+        else{
+            res.status(400).json({message: isUserDeleted.message});
+        }
     }
 
 }

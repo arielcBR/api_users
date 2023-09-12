@@ -8,7 +8,7 @@ class User{
         } catch (error) {  
             throw new AppError(error.message);
         }
-    };
+    }
 
     async findEmail(email) {
         try {
@@ -59,7 +59,7 @@ class User{
                     editedUser.name = name; 
                 }
     
-                if(role >= 0 && role < 3)
+                if(role == 0 || role == 1)
                     editedUser.role = role;
                 else
                     return {status: false, message: "The role is not valid"};
@@ -74,6 +74,23 @@ class User{
         }
         else{
             return {status: false, err: "The user does not exist!"}
+        }
+    }
+
+    async delete(id, role){
+        const user = await this.findById(id);
+
+        if(user.length){ 
+            if(role == 1){
+                await knex("users").where({id}).del();
+                return {status: true, message: "The user has been deleted!"};
+            }
+            else{
+                return {status: false, message: "You do not have permission!"};
+            }
+        }
+        else{
+            return {status: false, message: "The user does not exist!"};
         }
     }
 };
