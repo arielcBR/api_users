@@ -39,6 +39,43 @@ class User{
             throw new AppError(error.sqlMessage);
         }
     }
-}
+
+    async update(id, email, name, role){
+        const user = await this.findById(id);
+        const editedUser = {};
+
+        if(user.length){ 
+            if(email != undefined){
+                if(email != user.email){
+                    const IsEmailUsed = await this.findEmail(email);
+
+                    if(!IsEmailUsed)
+                        editedUser.email = email;
+                    else
+                        return {status: false, message: "The email is already in use"};
+                }
+
+                if(name != undefined){
+                    editedUser.name = name; 
+                }
+    
+                if(role >= 0 && role < 3)
+                    editedUser.role = role;
+                else
+                    return {status: false, message: "The role is not valid"};
+
+                try {
+                    await knex.update(editedUser).where({id}).table("users");
+                    return {status: true};
+                } catch (error) {
+                    return {status:false, err: error}
+                }
+            }
+        }
+        else{
+            return {status: false, err: "The user does not exist!"}
+        }
+    }
+};
 
 module.exports = new User();

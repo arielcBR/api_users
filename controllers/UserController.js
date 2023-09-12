@@ -56,6 +56,26 @@ class UserController{
             throw new AppError("You do not have permission!", 401);
 
     };
+
+    async edit(req, res){
+        const {id, name, email, role} = req.body;
+
+        const result = await User.update(id, email, name, role);
+
+        if(result != undefined){
+            if(result.status){
+                res.json({message: "The user has been updated!"});
+            }
+            else{
+                throw new AppError(result.err, 406);
+            }
+        }
+        else{
+            throw new AppError(result.err, 406);
+        }
+
+    }
+
 }
 
 module.exports = new UserController();
