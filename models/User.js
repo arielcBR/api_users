@@ -42,6 +42,15 @@ class User{
         }
     }
 
+    async findByEmail(email) {
+        try {
+            const user = await knex.select().from('users').where({email});
+            return user;
+        } catch (error) {
+            throw new AppError(error.sqlMessage);
+        }
+    }
+
     async update(id, email, name, role){
         const user = await this.findById(id);
         const editedUser = {};

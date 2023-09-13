@@ -1,4 +1,5 @@
 const { hash, compare } = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const AppError = require('../utils/AppError');
 const validateEmail = require('../utils/emailValidation');
 const User = require('../models/User');
@@ -91,7 +92,9 @@ class UserController{
 
     async recoveryPassword(req, res){
         const email = req.body.email;
-        const result = await PasswordToken.create(email);
+        const user = await User.findByEmail(email);
+
+        const result = await PasswordToken.create(email, user);
 
         if(result.status){
             res.json({message:"Token sent", token: result.token})

@@ -3,16 +3,9 @@ const AppError = require('../utils/AppError');
 const User = require('./User');
 
 class PasswordToken{
-    async create(email) {
-        let user = {};
-        try {
-            user = await knex.select(['id','email']).from('users').where({email});
-        } catch (error) {
-            throw new AppError(error.sqlMessage);
-        }
-
+    async create(email, user) {
         const token =  Date.now();
-
+        console.log("User:", user);
         if(user != undefined){
             try {
                 await knex
