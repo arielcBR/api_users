@@ -2,6 +2,7 @@ const { hash, compare } = require('bcrypt');
 const AppError = require('../utils/AppError');
 const validateEmail = require('../utils/emailValidation');
 const User = require('../models/User');
+const PasswordToken = require('../models/PasswordToken');
 
 class UserController{
 
@@ -86,6 +87,35 @@ class UserController{
         else{
             res.status(400).json({message: isUserDeleted.message});
         }
+    }
+
+    async recoveryPassword(req, res){
+        const email = req.body.email;
+        const result = await PasswordToken.create(email);
+
+        if(result.status){
+            res.json({message:"Token sent", token: result.token})
+        }
+        else{
+            throw new AppError(result.message, 406);
+        }
+    }
+
+    async changePassword(req,res){
+        const {token, password} = req.body;
+
+        const isTokenValid = await PasswordToken.validate(token);
+        const user_id = isTokenValid.user_id;
+        const tk_valid = isTokenValid.token;
+
+        if(isTokenValid.status){
+            await User.changePassword(user_id, password, tk_valid);
+            res.json({message: "The password has been updated"});
+        }
+        else{
+            throw new AppError("Token is not valid!", 406)
+        }
+
     }
 
 }

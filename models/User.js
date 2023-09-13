@@ -1,5 +1,7 @@
 const AppError = require('../utils/AppError');
 const knex = require('../database/connection');
+const PasswordToken = require('./PasswordToken');
+const { hash } = require('bcrypt');
 
 class User{
     async new(name, email, hashedPassword, role = 0) {
@@ -92,6 +94,12 @@ class User{
         else{
             return {status: false, message: "The user does not exist!"};
         }
+    }
+
+    async changePassword(id, newPassword, token){
+        const hashedPassword = await hash(newPassword, 8);
+        await knex.update({password: hashedPassword}).where({id}).table("users");
+        await PasswordToken.setUsed(token);
     }
 };
 
