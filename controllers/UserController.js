@@ -5,6 +5,8 @@ const validateEmail = require('../utils/emailValidation');
 const User = require('../models/User');
 const PasswordToken = require('../models/PasswordToken');
 
+const secret = "gatito";
+
 class UserController{
 
     async create(req, res) {
@@ -117,6 +119,30 @@ class UserController{
         }
         else{
             throw new AppError("Token is not valid!", 406)
+        }
+
+    }
+
+    async login(req,res){
+        const {email, password} = req.body;
+
+        const user = await User.findByEmail(email);
+        
+        if(user.length){
+            const comparePassword = await compare(password, user[0].password);
+            if(comparePassword){
+                const tokenJwt = jwt.sign({
+                    email: user[0].email,
+                    role: user[0].role 
+                }, secret);
+                res.json({tokenJwt});
+            }
+            else{
+                throw new AppError("The password is wrong!", 401);
+            }
+        }
+        else{
+            throw new AppError("The user does not exist!", 406);
         }
 
     }
